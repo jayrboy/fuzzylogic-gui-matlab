@@ -1,0 +1,39 @@
+[System]
+Name='fuzzysystem'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=4
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='Humidity'
+Range=[35 100]
+NumMFs=2
+MF1='low':'trimf',[35 50 65]
+MF2='high':'trapmf',[64 83 100 100]
+
+[Input2]
+Name='Temp'
+Range=[0 35]
+NumMFs=2
+MF1='low':'trimf',[16 20.5 25]
+MF2='high':'trapmf',[24 29.5 35 35]
+
+[Output1]
+Name='RH'
+Range=[0 1000]
+NumMFs=2
+MF1='low':'trimf',[0 250 500]
+MF2='high':'trimf',[490 750 1000]
+
+[Rules]
+1 1, 2 (1) : 1
+1 2, 1 (1) : 1
+2 2, 1 (1) : 1
+2 1, 2 (1) : 1

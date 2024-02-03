@@ -1,0 +1,243 @@
+classdef guihumidity < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure     matlab.ui.Figure
+        RPMLabel     matlab.ui.control.Label
+        Label_5      matlab.ui.control.Label
+        EditField_2  matlab.ui.control.NumericEditField
+        Label_3      matlab.ui.control.Label
+        ClearButton  matlab.ui.control.Button
+        StartButton  matlab.ui.control.Button
+        Slider_2     matlab.ui.control.Slider
+        Label_4      matlab.ui.control.Label
+        EditField2   matlab.ui.control.NumericEditField
+        EditField    matlab.ui.control.NumericEditField
+        Slider       matlab.ui.control.Slider
+        Label_2      matlab.ui.control.Label
+        TextArea     matlab.ui.control.TextArea
+        Label        matlab.ui.control.Label
+        Image        matlab.ui.control.Image
+    end
+
+    
+    properties (Access = private)
+        humiditylevel = 0;
+        templevel = 0;
+        sys;
+        currentlevel = 0;
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Code that executes after component creation
+        function startupFcn(app)
+            app.sys = readfis('fuzzysystem.fis');
+        end
+
+        % Value changed function: Slider
+        function SliderValueChanged(app, event)
+            value = app.Slider.Value;
+            app.EditField.Value = app.Slider.Value;
+        end
+
+        % Value changed function: Slider_2
+        function Slider_2ValueChanged(app, event)
+            value = app.Slider_2.Value;
+            app.EditField2.Value = app.Slider_2.Value;
+        end
+
+        % Button pushed function: StartButton
+        function StartButtonPushed(app, event)
+            app.humiditylevel = app.EditField2.Value;
+            app.templevel = app.EditField.Value;
+            
+            
+
+            if (app.templevel <= 14) || (app.humiditylevel <= 35)
+                app.EditField_2.Value = 0;
+            elseif (app.templevel > 0) && (app.templevel <= 35) && (app.humiditylevel > 35) && (app.humiditylevel <= 100)
+                app.currentlevel = evalfis(app.sys, [app.humiditylevel app.templevel]);
+                app.EditField_2.Value = app.currentlevel;
+            end
+
+
+            if (app.humiditylevel >= 35 && app.humiditylevel <= 65) && (app.templevel >= 14 && app.templevel <= 25)
+                app.TextArea.Value = 'รอบพัดลมเครื่องดูดความชื้นทำงานสูง';
+
+            elseif (app.humiditylevel >= 35 && app.humiditylevel <= 65) && (app.templevel >= 24 && app.templevel <= 45)
+                app.TextArea.Value = 'รอบพัดลมเครื่องดูดความชื้นทำงานต่ำ';
+
+            elseif (app.humiditylevel >= 64 && app.humiditylevel <= 100) && (app.templevel >= 14 && app.templevel <= 25)
+                app.TextArea.Value = 'รอบพัดลมเครื่องดูดความชื้นทำงานสูง';
+
+            elseif (app.humiditylevel >= 64 && app.humiditylevel <= 100) && (app.templevel >= 24 && app.templevel <= 45)
+                app.TextArea.Value = 'รอบพัดลมเครื่องดูดความชื้นทำงานต่ำ';
+
+            else
+                app.TextArea.Value = 'Error';
+            end
+        end
+
+        % Button pushed function: ClearButton
+        function ClearButtonPushed(app, event)
+            app.TextArea.Value="";
+            app.EditField.Value=0;
+            app.EditField2.Value=0;
+            app.EditField_2.Value=0;
+            app.Slider.Value=15;
+            app.Slider_2.Value=35;
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Get the file path for locating images
+            pathToMLAPP = fileparts(mfilename('fullpath'));
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 640 480];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create Image
+            app.Image = uiimage(app.UIFigure);
+            app.Image.Position = [331 151 282 241];
+            app.Image.ImageSource = fullfile(pathToMLAPP, 'hum.jpg');
+
+            % Create Label
+            app.Label = uilabel(app.UIFigure);
+            app.Label.HorizontalAlignment = 'right';
+            app.Label.FontName = 'Tahoma';
+            app.Label.FontSize = 14;
+            app.Label.Position = [254 45 43 22];
+            app.Label.Text = 'สถานะ';
+
+            % Create TextArea
+            app.TextArea = uitextarea(app.UIFigure);
+            app.TextArea.Editable = 'off';
+            app.TextArea.HorizontalAlignment = 'center';
+            app.TextArea.FontName = 'Tahoma';
+            app.TextArea.FontSize = 14;
+            app.TextArea.Position = [304 15 309 82];
+
+            % Create Label_2
+            app.Label_2 = uilabel(app.UIFigure);
+            app.Label_2.HorizontalAlignment = 'right';
+            app.Label_2.FontName = 'Tahoma';
+            app.Label_2.FontSize = 18;
+            app.Label_2.Position = [130 221 65 24];
+            app.Label_2.Text = 'อุณหภูมิ';
+
+            % Create Slider
+            app.Slider = uislider(app.UIFigure);
+            app.Slider.Limits = [15 35];
+            app.Slider.ValueChangedFcn = createCallbackFcn(app, @SliderValueChanged, true);
+            app.Slider.Position = [88 200 150 3];
+            app.Slider.Value = 15;
+
+            % Create EditField
+            app.EditField = uieditfield(app.UIFigure, 'numeric');
+            app.EditField.Editable = 'off';
+            app.EditField.HorizontalAlignment = 'center';
+            app.EditField.Position = [139 133 66 22];
+
+            % Create EditField2
+            app.EditField2 = uieditfield(app.UIFigure, 'numeric');
+            app.EditField2.ValueDisplayFormat = '%.0f';
+            app.EditField2.Editable = 'off';
+            app.EditField2.HorizontalAlignment = 'center';
+            app.EditField2.Position = [139 271 66 22];
+
+            % Create Label_4
+            app.Label_4 = uilabel(app.UIFigure);
+            app.Label_4.HorizontalAlignment = 'right';
+            app.Label_4.FontName = 'Tahoma';
+            app.Label_4.FontSize = 18;
+            app.Label_4.Position = [118 355 108 24];
+            app.Label_4.Text = 'ความชื้นในดิน';
+
+            % Create Slider_2
+            app.Slider_2 = uislider(app.UIFigure);
+            app.Slider_2.Limits = [35 100];
+            app.Slider_2.ValueChangedFcn = createCallbackFcn(app, @Slider_2ValueChanged, true);
+            app.Slider_2.Position = [95 336 150 3];
+            app.Slider_2.Value = 35;
+
+            % Create StartButton
+            app.StartButton = uibutton(app.UIFigure, 'push');
+            app.StartButton.ButtonPushedFcn = createCallbackFcn(app, @StartButtonPushed, true);
+            app.StartButton.Position = [113 65 100 23];
+            app.StartButton.Text = 'Start';
+
+            % Create ClearButton
+            app.ClearButton = uibutton(app.UIFigure, 'push');
+            app.ClearButton.ButtonPushedFcn = createCallbackFcn(app, @ClearButtonPushed, true);
+            app.ClearButton.Position = [113 30 100 23];
+            app.ClearButton.Text = 'Clear';
+
+            % Create Label_3
+            app.Label_3 = uilabel(app.UIFigure);
+            app.Label_3.HorizontalAlignment = 'right';
+            app.Label_3.FontName = 'Tahoma';
+            app.Label_3.Position = [324 112 144 22];
+            app.Label_3.Text = 'ความเร็วรอบเครื่องดูดอากาศ';
+
+            % Create EditField_2
+            app.EditField_2 = uieditfield(app.UIFigure, 'numeric');
+            app.EditField_2.HorizontalAlignment = 'center';
+            app.EditField_2.Position = [473 112 100 22];
+
+            % Create Label_5
+            app.Label_5 = uilabel(app.UIFigure);
+            app.Label_5.FontName = 'Tahoma';
+            app.Label_5.FontSize = 24;
+            app.Label_5.Position = [167 418 342 32];
+            app.Label_5.Text = 'โปรแกรมควบคุมเครื่องดูดความชื้น';
+
+            % Create RPMLabel
+            app.RPMLabel = uilabel(app.UIFigure);
+            app.RPMLabel.HorizontalAlignment = 'right';
+            app.RPMLabel.FontName = 'Tahoma';
+            app.RPMLabel.Position = [572 112 28 22];
+            app.RPMLabel.Text = 'RPM';
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = guihumidity
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            % Execute the startup function
+            runStartupFcn(app, @startupFcn)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
