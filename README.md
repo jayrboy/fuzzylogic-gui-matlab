@@ -1,5 +1,7 @@
 # Introduction
 
+![alt text](/images/gui.png)
+
 Knowledge-Based System
 
 - ระบบที่ประยุกต์ใช้งานจาก ฐานความรู้ของมนุษย์ ไปใช้ในการควบคุมระบบ
@@ -10,27 +12,26 @@ Rule-Based System (IF-THEN rule)
 
 # ตัวอย่าง IF-THEN: ระบบควบคุมเครื่องดูดความชื้น
 
-![alt text](/images/rules.png)
-
 1. กำหนดค่าในโปรแกรม Fuzzy Logic Designer: MATLAB
 
-- export rules.fis from Fuzzy Logic Designer
-
-![alt text](/images/fuzzylofic.png)
+![alt text](/images/rules.png)
 
 2. กำหนด I/O
    - ออกแบบ Fuzzy Set
    - ออกแบบ Membership Function (MFS)
    - ออกแบบ Fuzzy Rule
 
-![alt text](/images/example.png)
+![alt text](/images/fuzzylofic.png)
+
+- export rules.fis from Fuzzy Logic Designer
 
 3. ตัวอย่างการประยุกต์ใช้งาน
+
+![alt text](/images/example.png)
 
 # MATLAB
 
 - ออกแบบ GUI
-- ![alt text](/images/gui.png)
 - กำหนด private property
 
 ```matlab
